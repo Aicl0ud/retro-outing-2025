@@ -18,8 +18,16 @@ type Feedback = {
   action?: string;
 };
 
+// Define missing Announcement type
+// type Announcement = {
+//   id: string;
+//   text: string;
+//   timestamp: number;
+// };
+
 export default function Retrospective() {
-  const [uid, setUid] = useState<string | null>(null);
+  // Remove or comment out unused variables
+  // const [uid, setUid] = useState<string | null>(null);
   const [adminMode, setAdminMode] = useState(false);
   const [submissions, setSubmissions] = useState<Feedback[]>([]);
   const [form, setForm] = useState({
@@ -28,9 +36,10 @@ export default function Retrospective() {
     bad: "",
     action: "",
   });
-  const [actionItems, setActionItems] = useState<{ id: string; text: string; done: boolean }[]>([]);
-  const [newActionText, setNewActionText] = useState("");
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  // These state variables can be removed or commented out if not used
+  // const [actionItems, setActionItems] = useState<{ id: string; text: string; done: boolean }[]>([]);
+  // const [newActionText, setNewActionText] = useState("");
+  // const [announcements, setAnnouncements] = useState<Announcement[]>([]);
 
   useEffect(() => {
     console.log("Initializing authentication and data subscription...");
@@ -43,10 +52,10 @@ export default function Retrospective() {
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (user) {
         console.log("User signed in:", user.uid);
-        setUid(user.uid);
+        // setUid(user.uid); - Not used, so we can remove this
       } else {
         console.log("User signed out");
-        setUid(null);
+        // setUid(null); - Not used, so we can remove this
       }
     });
 
@@ -54,12 +63,17 @@ export default function Retrospective() {
     const unsubscribeDB = onValue(feedbackRef, (snapshot) => {
       const data = snapshot.val() || {};
       console.log("Received feedback data:", data);
-      const loaded = Object.entries(data).map(([key, value]) => ({ id: key, ...value })) as Feedback[];
+      const loaded = Object.entries(data).map(([key, value]) => ({ 
+        id: key, 
+        ...(value as object) 
+      })) as Feedback[];
       setSubmissions(loaded.reverse());
     }, (error) => {
       console.error("Error fetching feedback data:", error);
     });
 
+    // Since actionItems is not used in the UI, we can remove this part
+    /*
     const actionRef = ref(database, 'actionItems');
     onValue(actionRef, (snapshot) => {
       const data = snapshot.val() || {};
@@ -69,6 +83,7 @@ export default function Retrospective() {
       }));
       setActionItems(loaded);
     });
+    */
 
     return () => {
       unsubscribeAuth();
