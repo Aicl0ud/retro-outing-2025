@@ -3,12 +3,10 @@
 import { useEffect, useState } from "react";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
 import { database, ref, push, onValue, remove } from "@/lib/firebase";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import ActionsFromLastSprint from "@/components/ActionsFromLastSprint";
 import AnnouncementBoard from "@/components/AnnouncementBoard";
+import RetroFeedback from "@/components/RetroFeedback";
 
 type Feedback = {
   id: string;
@@ -111,7 +109,7 @@ export default function Retrospective() {
       const feedbackRef = ref(database, 'feedback');
       await push(feedbackRef, form);
       console.log("Feedback submitted successfully");
-      setForm({ name: "", good: "", bad: "", action: "" });
+      setForm({ ...form, good: "", bad: "", action: "" });
     } catch (error) {
       console.error("Error submitting feedback:", error);
       alert("Failed to submit feedback. Please try again.");
@@ -139,117 +137,6 @@ export default function Retrospective() {
 
       <hr className="my-5" />
 
-      <h2 className="text-xl font-bold mb-4">Retrospective time!!! 🚗💨 🌴</h2>
-
-      <form
-        onSubmit={handleSubmit}
-        className="grid grid-cols-1 gap-4 bg-white p-6 rounded-2xl shadow"
-      >
-        <Input
-          name="name"
-          placeholder="Namae wa? (optional)"
-          value={form.name}
-          onChange={handleChange}
-        />
-        <Textarea
-          name="good"
-          placeholder="What went well?"
-          value={form.good}
-          onChange={handleChange}
-          rows={3}
-        />
-        <Textarea
-          name="bad"
-          placeholder="What could be improved?"
-          value={form.bad}
-          onChange={handleChange}
-          rows={3}
-        />
-        <Textarea
-          name="action"
-          placeholder="What should do next?"
-          value={form.action}
-          onChange={handleChange}
-          rows={3}
-        />
-        <Button type="submit">Submit</Button>
-      </form>
-
-      <hr className="my-25" />
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <h2 className="text-xl font-semibold mb-2">🟩 What went well</h2>
-          {submissions.map((s) =>
-            s.good ? (
-              <Card key={`good-${s.id}`} className="mb-2">
-                <CardContent className="p-3 text-sm">
-                  <p>{s.good}</p>
-                  {s.name && <p className="text-xs text-gray-400 mt-2">- {s.name}</p>}
-                  {adminMode && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="text-red-500 mt-2"
-                      onClick={() => handleDelete(s.id)}
-                    >
-                      Delete
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-            ) : null
-          )}
-        </div>
-
-        <div>
-          <h2 className="text-xl font-semibold mb-2">🟨 What could be improved</h2>
-          {submissions.map((s) =>
-            s.bad ? (
-              <Card key={`bad-${s.id}`} className="mb-2">
-                <CardContent className="p-3 text-sm">
-                  <p>{s.bad}</p>
-                  {s.name && <p className="text-xs text-gray-400 mt-2">- {s.name}</p>}
-                  {adminMode && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="text-red-500 mt-2"
-                      onClick={() => handleDelete(s.id)}
-                    >
-                      Delete
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-            ) : null
-          )}
-        </div>
-
-        <div>
-          <h2 className="text-xl font-semibold mb-2">✨ Action Items</h2>
-          {submissions.map((s) =>
-            s.action ? (
-              <Card key={`action-${s.id}`} className="mb-2">
-                <CardContent className="p-3 text-sm">
-                  <p>{s.action}</p>
-                  {s.name && <p className="text-xs text-gray-400 mt-2">- {s.name}</p>}
-                  {adminMode && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="text-red-500 mt-2"
-                      onClick={() => handleDelete(s.id)}
-                    >
-                      Delete
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-            ) : null
-          )}
-        </div>
-      </div>
       <div className="flex justify-between items-center">
         <p></p>
         <Button
@@ -260,6 +147,15 @@ export default function Retrospective() {
           {adminMode ? "Exit Admin Mode" : "Enter Admin Mode"}
         </Button>
       </div>
+
+      <RetroFeedback
+        submissions={submissions}
+        form={{ id: "", ...form }}
+        adminMode={adminMode}
+        handleChange={handleChange}
+        handleSubmit={handleSubmit}
+        handleDelete={handleDelete}
+      />
     </div>
   );
 }
